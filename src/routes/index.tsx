@@ -32,8 +32,14 @@ const ClaimReviewPage = lazy(() => import('@/pages/agent/ClaimReviewPage'))
 const CustomerManagementPage = lazy(
   () => import('@/pages/agent/CustomerManagementPage'),
 )
+const AgentCustomerDetailsPage = lazy(
+  () => import('@/pages/agent/AgentCustomerDetailsPage'),
+)
 const PolicyManagementPage = lazy(
   () => import('@/pages/agent/PolicyManagementPage'),
+)
+const AgentPolicyDetailsPage = lazy(
+  () => import('@/pages/agent/AgentPolicyDetailsPage'),
 )
 
 export const routes: RouteObject[] = [
@@ -62,7 +68,9 @@ export const routes: RouteObject[] = [
       { path: 'claims', element: <ClaimsManagementPage /> },
       { path: 'claims/:claimId', element: <ClaimReviewPage /> },
       { path: 'customers', element: <CustomerManagementPage /> },
+      { path: 'customers/:customerId', element: <AgentCustomerDetailsPage /> },
       { path: 'policies', element: <PolicyManagementPage /> },
+      { path: 'policies/:policyId', element: <AgentPolicyDetailsPage /> },
     ],
   },
   {

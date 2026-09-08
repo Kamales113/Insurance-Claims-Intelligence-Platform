@@ -1,5 +1,6 @@
-import { mockClaims, mockCustomers, mockPolicies, mockUsers } from '@/mock'
-import type { Claim } from '@/types'
+import { mockClaimHistory, mockClaims, mockCustomers, mockPolicies, mockUsers } from '@/mock'
+import type { Claim, ClaimStatusHistory } from '@/types'
+import type { ClaimStatus } from '@/constants/claims'
 
 export interface ClaimWithPolicy extends Claim {
   policyType?: string
@@ -22,6 +23,14 @@ export interface AgentClaimSummary {
 
 export interface AgentClaimWithCustomer extends ClaimWithPolicy {
   customerName: string
+  customerEmail: string
+}
+
+function enrichClaim(claim: Claim): AgentClaimWithCustomer {
+  const policy = mockPolicies.find((candidate) => candidate.id === claim.policyId)
+  const customer = mockCustomers.find((candidate) => candidate.id === claim.customerId)
+  const user = mockUsers.find((candidate) => candidate.id === customer?.userId)
+  return { ...claim, customerName: user ? `${user.firstName} ${user.lastName}` : 'Unknown customer', customerEmail: user?.email ?? '', policyType: policy?.type ?? 'General Policy', policyNumber: policy?.policyNumber ?? 'N/A' }
 }
 
 export async function getClaims(): Promise<Claim[]> {
@@ -48,9 +57,57 @@ export async function getClaimsByCustomerId(customerId: string): Promise<ClaimWi
   return Promise.resolve(claimsWithPolicies)
 }
 
+export async function getClaimsByPolicyId(policyId: string): Promise<AgentClaimWithCustomer[]> {
+  return Promise.resolve(mockClaims.filter((claim) => claim.policyId === policyId).map(enrichClaim))
+}
+
 export async function getClaimById(id: string): Promise<Claim | null> {
   const claim = mockClaims.find((c) => c.id === id)
   return Promise.resolve(claim || null)
+}
+
+export async function getClaimHistory(claimId: string): Promise<ClaimStatusHistory[]> {
+  return Promise.resolve(
+    mockClaimHistory
+      .filter((entry) => entry.claimId === claimId)
+      .sort((a, b) => new Date(a.changedAt).getTime() - new Date(b.changedAt).getTime()),
+  )
+}
+
+export async function updateClaimStatus(claimId: string, status: ClaimStatus, notes: string): Promise<Claim | null> {
+  const claim = mockClaims.find((candidate) => candidate.id === claimId)
+  if (!claim) return Promise.resolve(null)
+  const now = new Date().toISOString()
+  claim.status = status
+  claim.updatedAt = now
+  mockClaimHistory.push({ id: `hist_${crypto.randomUUID()}`, claimId, status, changedAt: now, changedBy: 'user_agent_001', notes })
+  return Promise.resolve(claim)
+}
+
+export async function getAgentClaims(): Promise<AgentClaimWithCustomer[]> {
+  return Promise.resolve(mockClaims.map(enrichClaim).sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()))
+}
+
+export async function submitClaim(input: Omit<Claim, 'id' | 'claimNumber' | 'status' | 'submittedAt' | 'updatedAt'>): Promise<Claim> {
+  const now = new Date().toISOString()
+  const claim: Claim = {
+    ...input,
+    id: `clm_${crypto.randomUUID()}`,
+    claimNumber: `CLM-${new Date().getFullYear()}-${String(mockClaims.length + 1).padStart(3, '0')}`,
+    status: 'SUBMITTED',
+    submittedAt: now,
+    updatedAt: now,
+  }
+  mockClaims.push(claim)
+  mockClaimHistory.push({
+    id: `hist_${crypto.randomUUID()}`,
+    claimId: claim.id,
+    status: claim.status,
+    changedAt: now,
+    changedBy: input.customerId,
+    notes: 'Initial claim submission by policyholder.',
+  })
+  return Promise.resolve(claim)
 }
 
 export async function getCustomerClaimSummary(
@@ -117,18 +174,7 @@ export async function getClaimsRequiringAttention(): Promise<AgentClaimWithCusto
   return Promise.resolve(
     mockClaims
       .filter((claim) => attentionStatuses.includes(claim.status))
-      .map((claim) => {
-        const policy = mockPolicies.find((candidate) => candidate.id === claim.policyId)
-        const customer = mockCustomers.find((candidate) => candidate.id === claim.customerId)
-        const user = mockUsers.find((candidate) => candidate.id === customer?.userId)
-
-        return {
-          ...claim,
-          customerName: user ? `${user.firstName} ${user.lastName}` : 'Unknown customer',
-          policyType: policy?.type ?? 'General Policy',
-          policyNumber: policy?.policyNumber ?? 'N/A',
-        }
-      })
+      .map(enrichClaim)
       .sort(
         (a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime(),
       ),

@@ -1,10 +1,15 @@
-import { PagePlaceholder } from '@/components/layout/PagePlaceholder'
+import { useEffect, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
+import { Search, X } from 'lucide-react'
+import { PageHeader } from '@/components/layout/PageHeader'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import { getPoliciesWithCustomers, type PolicyWithCustomer } from '@/services/policyService'
+import { formatCurrency, formatDate } from '@/utils/formatters'
 
 export default function PolicyManagementPage() {
-  return (
-    <PagePlaceholder
-      title="Policy Management"
-      description="Manage insurance policies, coverage, and policy status."
-    />
-  )
+  const [policies, setPolicies] = useState<PolicyWithCustomer[]>([]); const [query, setQuery] = useState(''); const [type, setType] = useState('all'); const [status, setStatus] = useState('all')
+  useEffect(() => { void getPoliciesWithCustomers().then(setPolicies) }, [])
+  const types = [...new Set(policies.map((policy) => policy.type))]; const filtered = useMemo(() => policies.filter((policy) => (type === 'all' || policy.type === type) && (status === 'all' || policy.status === status) && `${policy.policyNumber} ${policy.customerName}`.toLowerCase().includes(query.toLowerCase())), [policies, query, type, status])
+  return <div className="space-y-6"><PageHeader title="Policy Management" description="Manage policies and coverage across customer portfolios." /><Card><CardContent className="grid gap-3 p-5 md:grid-cols-[1fr_auto_auto_auto]"><label className="relative"><span className="sr-only">Search policies</span><Search className="absolute left-3 top-3 size-4 text-muted-foreground" /><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search policy or customer" className="h-10 w-full rounded-md border bg-background pl-9 pr-3 text-sm" /></label><select aria-label="Policy type" value={type} onChange={(e) => setType(e.target.value)} className="h-10 rounded-md border bg-background px-3 text-sm"><option value="all">All types</option>{types.map((item) => <option key={item}>{item}</option>)}</select><select aria-label="Policy status" value={status} onChange={(e) => setStatus(e.target.value)} className="h-10 rounded-md border bg-background px-3 text-sm"><option value="all">All statuses</option><option value="active">Active</option><option value="expired">Expired</option><option value="cancelled">Cancelled</option></select><Button variant="outline" onClick={() => { setQuery(''); setType('all'); setStatus('all') }}><X className="size-4" /> Clear</Button></CardContent></Card><p className="text-sm text-muted-foreground">{filtered.length} of {policies.length} policies</p><Card><CardContent className="p-0"><div className="overflow-x-auto"><table className="w-full text-left text-sm"><thead className="border-b bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground"><tr><th className="px-5 py-3">Policy</th><th className="px-5 py-3">Customer</th><th className="px-5 py-3">Type</th><th className="px-5 py-3">Coverage</th><th className="px-5 py-3">Premium</th><th className="px-5 py-3">Period</th><th className="px-5 py-3">Status</th><th className="px-5 py-3 text-right">Action</th></tr></thead><tbody className="divide-y divide-border">{filtered.map((policy) => <tr key={policy.id} className="hover:bg-muted/30"><td className="whitespace-nowrap px-5 py-4 font-medium">{policy.policyNumber}</td><td className="px-5 py-4">{policy.customerName}</td><td className="px-5 py-4">{policy.type}</td><td className="px-5 py-4">{formatCurrency(policy.coverageAmount)}</td><td className="px-5 py-4">{formatCurrency(policy.premium)}</td><td className="whitespace-nowrap px-5 py-4 text-xs">{formatDate(policy.startDate)} – {formatDate(policy.endDate)}</td><td className="px-5 py-4 capitalize">{policy.status}</td><td className="px-5 py-4 text-right"><Button asChild variant="ghost" size="sm"><Link to={`/agent/policies/${policy.id}`}>View</Link></Button></td></tr>)}</tbody></table></div>{filtered.length === 0 && <p className="p-8 text-center text-sm text-muted-foreground">No policies match the current filters.</p>}</CardContent></Card></div>
 }
