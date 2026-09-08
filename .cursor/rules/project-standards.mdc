@@ -1,0 +1,36 @@
+---
+description: Core project standards for Insurance Claims Intelligence Platform
+alwaysApply: true
+---
+
+# Insurance Claims Intelligence Platform
+
+## Scope
+- Phase 1 frontend only — no RAG, AI agents, MCP, or backend yet
+- Work incrementally, one task at a time
+- Do not build the entire application in one response
+
+## Stack
+- React, TypeScript, Vite, Tailwind CSS, shadcn/ui
+- React Router, TanStack Query, React Hook Form, Zod, Lucide React
+- No proprietary AI-platform dependencies
+
+## Architecture
+- Separate pages, components, layouts, services, types, hooks, utils, mock data
+- Business logic in services/hooks/utils — not in UI components
+- Mock data in `src/mock/` — never inline in pages
+- Services in `src/services/` — stub now, FastAPI later
+
+## Types & Constants
+- Use shared types from `src/types/`
+- Claim statuses via `ClaimStatus` union in `src/constants/claims.ts`
+- User roles: customer, agent, admin
+
+## UI
+- Enterprise insurance dashboard aesthetic
+- Desktop-first, responsive, accessible forms
+- Reuse layout components from `src/components/layout/`
+
+## Commits
+- Conventional commits: feat:, fix:, refactor:, docs:, test:, chore:
+- Do not commit unless explicitly asked

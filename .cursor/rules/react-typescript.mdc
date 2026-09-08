@@ -1,0 +1,32 @@
+---
+description: React and TypeScript patterns for frontend components
+globs: src/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# React & TypeScript Conventions
+
+- Use functional components with explicit prop interfaces
+- Avoid `any` — use proper types from `src/types/`
+- Lazy-load page components via React Router
+- Use TanStack Query for async data fetching (when implemented)
+- Use React Hook Form + Zod for forms (when implemented)
+- Prefer `cn()` from `@/lib/utils` for conditional classes
+- Extract reusable UI into `src/components/` — not duplicated per page
+
+## File Placement
+- Pages: `src/pages/{auth,customer,agent,admin}/`
+- Shared UI: `src/components/ui/` (shadcn)
+- Domain components: `src/components/{claims,policies,customers,dashboard}/`
+- Layout: `src/components/layout/`
+
+## Example
+```tsx
+interface ClaimCardProps {
+  claim: Claim
+}
+
+export function ClaimCard({ claim }: ClaimCardProps) {
+  return (/* ... */)
+}
+```
