@@ -1,9 +1,16 @@
+import { mockPolicies } from '@/mock'
 import type { Policy } from '@/types'
 
 export async function getPolicies(): Promise<Policy[]> {
-  throw new Error('policyService.getPolicies is not implemented yet')
+  return Promise.resolve([...mockPolicies])
 }
 
-export async function getPolicyById(_id: string): Promise<Policy | null> {
-  throw new Error('policyService.getPolicyById is not implemented yet')
+export async function getPoliciesByCustomerId(customerId: string): Promise<Policy[]> {
+  const policies = mockPolicies.filter((p) => p.customerId === customerId)
+  return Promise.resolve(policies)
+}
+
+export async function getPolicyById(id: string): Promise<Policy | null> {
+  const policy = mockPolicies.find((p) => p.id === id)
+  return Promise.resolve(policy || null)
 }

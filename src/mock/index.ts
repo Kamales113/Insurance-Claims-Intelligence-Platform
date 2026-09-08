@@ -1,3 +1,4 @@
-// Mock data layer — will be populated in the next milestone.
-
-export {}
+export * from './data/customers'
+export * from './data/policies'
+export * from './data/claims'
+export * from './data/claimHistory'
