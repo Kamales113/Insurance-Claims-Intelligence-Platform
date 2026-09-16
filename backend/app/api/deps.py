@@ -1,6 +1,6 @@
 from typing import AsyncGenerator, List
 from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import JWTError, jwt
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config import settings
@@ -8,7 +8,7 @@ from app.core.database import AsyncSessionLocal
 from app.models.user import User
 from app.services.auth_service import get_user_by_id
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
+security_scheme = HTTPBearer()
 
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
@@ -20,7 +20,8 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
 
 
 async def get_current_user(
-    db: AsyncSession = Depends(get_db), token: str = Depends(oauth2_scheme)
+    db: AsyncSession = Depends(get_db),
+    token: HTTPAuthorizationCredentials = Depends(security_scheme),
 ) -> User:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -28,7 +29,9 @@ async def get_current_user(
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        payload = jwt.decode(
+            token.credentials, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
+        )
         user_id: str = payload.get("sub")
         if user_id is None:
             raise credentials_exception
@@ -51,3 +54,4 @@ def require_role(allowed_roles: List[str]):
         return current_user
 
     return role_checker
+
