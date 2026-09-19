@@ -3,6 +3,7 @@ import type { RouteObject } from 'react-router-dom'
 
 import { AppLayout } from '@/components/layout/AppLayout'
 import { AuthLayout } from '@/components/layout/AuthLayout'
+import { RequireRole } from '@/routes/RequireRole'
 
 const LoginPage = lazy(() => import('@/pages/auth/LoginPage'))
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'))
@@ -50,7 +51,7 @@ export const routes: RouteObject[] = [
   },
   {
     path: '/customer',
-    element: <AppLayout role="customer" />,
+    element: <RequireRole role="customer"><AppLayout role="customer" /></RequireRole>,
     children: [
       { index: true, element: <CustomerDashboardPage /> },
       { path: 'claims', element: <CustomerClaimsPage /> },
@@ -62,7 +63,7 @@ export const routes: RouteObject[] = [
   },
   {
     path: '/agent',
-    element: <AppLayout role="agent" />,
+    element: <RequireRole role="agent"><AppLayout role="agent" /></RequireRole>,
     children: [
       { index: true, element: <AgentDashboardPage /> },
       { path: 'claims', element: <ClaimsManagementPage /> },

@@ -1,6 +1,7 @@
-import { mockClaimHistory, mockClaims, mockCustomers, mockPolicies, mockUsers } from '@/mock'
+import { mockClaims, mockCustomers, mockPolicies, mockUsers } from '@/mock'
 import type { Claim, ClaimStatusHistory } from '@/types'
 import type { ClaimStatus } from '@/constants/claims'
+import { api } from '@/services/api'
 
 export interface ClaimWithPolicy extends Claim {
   policyType?: string
@@ -26,6 +27,38 @@ export interface AgentClaimWithCustomer extends ClaimWithPolicy {
   customerEmail: string
 }
 
+export interface CustomerDashboardData {
+  customerId: string
+  summary: CustomerClaimSummary
+  claims: ClaimWithPolicy[]
+}
+
+export interface AgentDashboardData {
+  summary: AgentClaimSummary
+  claims: AgentClaimWithCustomer[]
+}
+
+interface CurrentCustomerResponse { id: string }
+
+/** API-backed data used only by the customer dashboard during this integration phase. */
+export async function getCustomerDashboardData(): Promise<CustomerDashboardData> {
+  const customer = await api.get<CurrentCustomerResponse>('/api/v1/customers/me')
+  const [summary, claims] = await Promise.all([
+    api.get<CustomerClaimSummary>(`/api/v1/customers/${customer.id}/summary`),
+    api.get<ClaimWithPolicy[]>('/api/v1/claims'),
+  ])
+  return { customerId: customer.id, summary, claims }
+}
+
+/** API-backed data used only by the agent dashboard during this integration phase. */
+export async function getAgentDashboardData(): Promise<AgentDashboardData> {
+  const [summary, claims] = await Promise.all([
+    api.get<AgentClaimSummary>('/api/v1/claims/summary'),
+    api.get<AgentClaimWithCustomer[]>('/api/v1/claims?requiring_attention=true'),
+  ])
+  return { summary, claims }
+}
+
 function enrichClaim(claim: Claim): AgentClaimWithCustomer {
   const policy = mockPolicies.find((candidate) => candidate.id === claim.policyId)
   const customer = mockCustomers.find((candidate) => candidate.id === claim.customerId)
@@ -37,78 +70,62 @@ export async function getClaims(): Promise<Claim[]> {
   return Promise.resolve([...mockClaims])
 }
 
+/** API-backed claims list for the authenticated customer's My Claims page. */
+export async function getCurrentCustomerClaims(): Promise<ClaimWithPolicy[]> {
+  return api.get<ClaimWithPolicy[]>('/api/v1/claims')
+}
+
+/** API-backed claim detail used only by the customer Claim Details page. */
+export async function getCurrentCustomerClaimDetails(claimId: string): Promise<Claim> {
+  return api.get<Claim>(`/api/v1/claims/${encodeURIComponent(claimId)}`)
+}
+
+/** API-backed claim history used only by the customer Claim Details page. */
+export async function getCurrentCustomerClaimHistory(claimId: string): Promise<ClaimStatusHistory[]> {
+  return api.get<ClaimStatusHistory[]>(`/api/v1/claims/${encodeURIComponent(claimId)}/history`)
+}
+
 export async function getClaimsByCustomerId(customerId: string): Promise<ClaimWithPolicy[]> {
-  const claims = mockClaims.filter((c) => c.customerId === customerId)
-
-  const claimsWithPolicies: ClaimWithPolicy[] = claims.map((claim) => {
-    const policy = mockPolicies.find((p) => p.id === claim.policyId)
-    return {
-      ...claim,
-      policyType: policy?.type ?? 'General Policy',
-      policyNumber: policy?.policyNumber ?? 'N/A',
-    }
-  })
-
-  // Sort by submitted date descending
-  claimsWithPolicies.sort(
-    (a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()
-  )
-
-  return Promise.resolve(claimsWithPolicies)
+  return api.get<ClaimWithPolicy[]>(`/api/v1/claims?customer_id=${encodeURIComponent(customerId)}`)
 }
 
 export async function getClaimsByPolicyId(policyId: string): Promise<AgentClaimWithCustomer[]> {
-  return Promise.resolve(mockClaims.filter((claim) => claim.policyId === policyId).map(enrichClaim))
+  return api.get<AgentClaimWithCustomer[]>(`/api/v1/claims?policy_id=${encodeURIComponent(policyId)}`)
 }
 
 export async function getClaimById(id: string): Promise<Claim | null> {
-  const claim = mockClaims.find((c) => c.id === id)
-  return Promise.resolve(claim || null)
+  try {
+    return await api.get<Claim>(`/api/v1/claims/${encodeURIComponent(id)}`)
+  } catch {
+    return null
+  }
 }
 
 export async function getClaimHistory(claimId: string): Promise<ClaimStatusHistory[]> {
-  return Promise.resolve(
-    mockClaimHistory
-      .filter((entry) => entry.claimId === claimId)
-      .sort((a, b) => new Date(a.changedAt).getTime() - new Date(b.changedAt).getTime()),
-  )
+  return api.get<ClaimStatusHistory[]>(`/api/v1/claims/${encodeURIComponent(claimId)}/history`)
 }
 
-export async function updateClaimStatus(claimId: string, status: ClaimStatus, notes: string): Promise<Claim | null> {
-  const claim = mockClaims.find((candidate) => candidate.id === claimId)
-  if (!claim) return Promise.resolve(null)
-  const now = new Date().toISOString()
-  claim.status = status
-  claim.updatedAt = now
-  mockClaimHistory.push({ id: `hist_${crypto.randomUUID()}`, claimId, status, changedAt: now, changedBy: 'user_agent_001', notes })
-  return Promise.resolve(claim)
+export async function updateClaimStatus(claimId: string, status: ClaimStatus, notes?: string): Promise<Claim> {
+  return api.patch<Claim>(`/api/v1/claims/${encodeURIComponent(claimId)}/status`, { status, notes })
 }
 
 export async function getAgentClaims(): Promise<AgentClaimWithCustomer[]> {
-  return Promise.resolve(mockClaims.map(enrichClaim).sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()))
+  return api.get<AgentClaimWithCustomer[]>('/api/v1/claims')
 }
 
-export async function submitClaim(input: Omit<Claim, 'id' | 'claimNumber' | 'status' | 'submittedAt' | 'updatedAt'>): Promise<Claim> {
-  const now = new Date().toISOString()
-  const claim: Claim = {
-    ...input,
-    id: `clm_${crypto.randomUUID()}`,
-    claimNumber: `CLM-${new Date().getFullYear()}-${String(mockClaims.length + 1).padStart(3, '0')}`,
-    status: 'SUBMITTED',
-    submittedAt: now,
-    updatedAt: now,
-  }
-  mockClaims.push(claim)
-  mockClaimHistory.push({
-    id: `hist_${crypto.randomUUID()}`,
-    claimId: claim.id,
-    status: claim.status,
-    changedAt: now,
-    changedBy: input.customerId,
-    notes: 'Initial claim submission by policyholder.',
-  })
-  return Promise.resolve(claim)
+
+export interface SubmitClaimInput {
+  policyId: string
+  incidentDate: string
+  description: string
+  claimAmount: number
 }
+
+/** API-backed claim submission for the authenticated customer. */
+export async function submitClaim(input: SubmitClaimInput): Promise<Claim> {
+  return api.post<Claim>('/api/v1/claims', input)
+}
+
 
 export async function getCustomerClaimSummary(
   customerId: string

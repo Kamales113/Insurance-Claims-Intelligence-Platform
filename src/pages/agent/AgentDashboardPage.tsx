@@ -1,40 +1,23 @@
-import { type ReactNode, useEffect, useState } from 'react'
+import { type ReactNode } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
-import { ArrowRight, ClipboardList, FileText, Search, ShieldAlert, Users } from 'lucide-react'
+import { AlertCircle, ArrowRight, ClipboardList, FileText, Search, ShieldAlert, Users } from 'lucide-react'
 
 import { ClaimStatusBadge } from '@/components/claims/ClaimStatusBadge'
 import { SummaryCard } from '@/components/dashboard/SummaryCard'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
-import { getCurrentUser } from '@/services/authService'
-import { type AgentClaimSummary, type AgentClaimWithCustomer, getAgentClaimSummary, getClaimsRequiringAttention } from '@/services/claimsService'
-import type { User } from '@/types'
+import { getAgentDashboardData } from '@/services/claimsService'
+import { useAuth } from '@/providers/AuthProvider'
 import { formatCurrency, formatDate } from '@/utils/formatters'
 
 export default function AgentDashboardPage() {
-  const [loading, setLoading] = useState(true)
-  const [user, setUser] = useState<User | null>(null)
-  const [summary, setSummary] = useState<AgentClaimSummary>({ totalClaims: 0, pendingReview: 0, underInvestigation: 0, fraudAlerts: 0 })
-  const [claims, setClaims] = useState<AgentClaimWithCustomer[]>([])
-
-  useEffect(() => {
-    async function loadDashboardData() {
-      try {
-        const [currentUser, summaryData, claimsData] = await Promise.all([
-          getCurrentUser(),
-          getAgentClaimSummary(),
-          getClaimsRequiringAttention(),
-        ])
-        setUser(currentUser)
-        setSummary(summaryData)
-        setClaims(claimsData)
-      } finally {
-        setLoading(false)
-      }
-    }
-    void loadDashboardData()
-  }, [])
+  const { user } = useAuth()
+  const dashboardQuery = useQuery({ queryKey: ['dashboard', 'agent'], queryFn: getAgentDashboardData })
+  const { data, isLoading: loading, isError, refetch } = dashboardQuery
+  const summary = data?.summary ?? { totalClaims: 0, pendingReview: 0, underInvestigation: 0, fraudAlerts: 0 }
+  const claims = data?.claims ?? []
 
   return (
     <div className="space-y-8">
@@ -61,7 +44,11 @@ export default function AgentDashboardPage() {
           <Button asChild variant="ghost" size="sm"><Link to="/agent/claims">View all <ArrowRight className="size-3.5" /></Link></Button>
         </CardHeader>
         <CardContent className="p-0">
-          {loading ? <div className="space-y-4 p-6">{Array.from({ length: 3 }).map((_, index) => <Skeleton key={index} className="h-8 w-full" />)}</div> : (
+          {loading ? <div className="space-y-4 p-6">{Array.from({ length: 3 }).map((_, index) => <Skeleton key={index} className="h-8 w-full" />)}</div> : isError ? (
+            <div className="flex flex-col items-center justify-center gap-3 p-12 text-center"><AlertCircle className="size-7 text-destructive" /><div><h3 className="font-semibold">Unable to load the claims queue</h3><p className="mt-1 text-sm text-muted-foreground">Please check your connection and try again.</p></div><Button variant="outline" onClick={() => void refetch()}>Try again</Button></div>
+          ) : claims.length === 0 ? (
+            <div className="p-12 text-center text-sm text-muted-foreground">No claims currently require attention.</div>
+          ) : (
             <div className="overflow-x-auto"><table className="w-full text-left text-sm"><thead className="border-b bg-muted/40 text-xs font-medium uppercase tracking-wider text-muted-foreground"><tr><th className="px-6 py-3.5">Claim Number</th><th className="px-6 py-3.5">Customer</th><th className="px-6 py-3.5">Policy / Claim Type</th><th className="px-6 py-3.5">Amount</th><th className="px-6 py-3.5">Submitted Date</th><th className="px-6 py-3.5">Status</th><th className="px-6 py-3.5 text-right">Action</th></tr></thead><tbody className="divide-y divide-border">
               {claims.map((claim) => <tr key={claim.id} className="group transition-colors hover:bg-muted/30"><td className="whitespace-nowrap px-6 py-4 font-medium">{claim.claimNumber}</td><td className="whitespace-nowrap px-6 py-4">{claim.customerName}</td><td className="whitespace-nowrap px-6 py-4 text-muted-foreground"><div className="font-medium text-foreground">{claim.policyType}</div><div className="text-xs">{claim.policyNumber}</div></td><td className="whitespace-nowrap px-6 py-4 font-semibold">{formatCurrency(claim.claimAmount)}</td><td className="whitespace-nowrap px-6 py-4 text-muted-foreground">{formatDate(claim.submittedAt)}</td><td className="whitespace-nowrap px-6 py-4"><ClaimStatusBadge status={claim.status} /></td><td className="whitespace-nowrap px-6 py-4 text-right"><Button asChild variant="ghost" size="sm"><Link to={`/agent/claims/${claim.id}`}>Details <ArrowRight className="size-3.5" /></Link></Button></td></tr>)}
             </tbody></table></div>

@@ -1,37 +1,31 @@
-import { useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { Link, useParams } from 'react-router-dom'
-import { ArrowLeft, Route } from 'lucide-react'
+import { AlertCircle, ArrowLeft, CheckCircle2, Route } from 'lucide-react'
 
 import { ClaimStatusBadge } from '@/components/claims/ClaimStatusBadge'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
-import { getClaimById } from '@/services/claimsService'
-import { getPolicyById } from '@/services/policyService'
-import type { Claim, Policy } from '@/types'
+import { getCurrentCustomerClaimDetails, getCurrentCustomerClaimHistory } from '@/services/claimsService'
+import { ApiError } from '@/services/api'
 import { formatCurrency, formatDate } from '@/utils/formatters'
 
 export default function ClaimDetailsPage() {
   const { claimId } = useParams<{ claimId: string }>()
-  const [claim, setClaim] = useState<Claim | null>(null)
-  const [policy, setPolicy] = useState<Policy | null>(null)
-  const [loading, setLoading] = useState(true)
+  const claimQuery = useQuery({
+    queryKey: ['claims', 'customer', claimId],
+    queryFn: () => getCurrentCustomerClaimDetails(claimId ?? ''),
+    enabled: Boolean(claimId),
+  })
+  const historyQuery = useQuery({
+    queryKey: ['claims', 'customer', claimId, 'history'],
+    queryFn: () => getCurrentCustomerClaimHistory(claimId ?? ''),
+    enabled: Boolean(claimId),
+  })
 
-  useEffect(() => {
-    void (async () => {
-      try {
-        if (!claimId) return
-        const found = await getClaimById(claimId)
-        setClaim(found)
-        if (found) {
-          setPolicy(await getPolicyById(found.policyId))
-        }
-      } finally {
-        setLoading(false)
-      }
-    })()
-  }, [claimId])
+  const claim = claimQuery.data ?? null
+  const loading = claimQuery.isLoading
 
   if (loading) {
     return (
@@ -57,6 +51,13 @@ export default function ClaimDetailsPage() {
   }
 
   if (!claim) {
+    const status = claimQuery.error instanceof ApiError ? claimQuery.error.status : undefined
+    const title = status === 403 ? 'Access Denied' : status === 404 || !claimId ? 'Claim Not Found' : 'Unable to Load Claim'
+    const description = status === 403
+      ? 'You are not authorized to view this claim.'
+      : status === 404 || !claimId
+        ? 'The requested claim ID could not be located.'
+        : 'Please check your connection and try again.'
     return (
       <div className="space-y-4">
         <Button asChild variant="ghost">
@@ -65,10 +66,11 @@ export default function ClaimDetailsPage() {
           </Link>
         </Button>
         <Card className="p-8 text-center">
-          <CardTitle className="text-base font-semibold">Claim Not Found</CardTitle>
+          <CardTitle className="text-base font-semibold">{title}</CardTitle>
           <p className="mt-1 text-sm text-muted-foreground">
-            The requested claim ID could not be located.
+            {description}
           </p>
+          {claimId && status !== 403 && <Button className="mt-4" variant="outline" onClick={() => void claimQuery.refetch()}>Try again</Button>}
         </Card>
       </div>
     )
@@ -98,7 +100,7 @@ export default function ClaimDetailsPage() {
               <Detail label="Incident date" value={formatDate(claim.incidentDate)} />
               <Detail label="Submitted" value={formatDate(claim.submittedAt)} />
               <Detail label="Claim amount" value={formatCurrency(claim.claimAmount)} />
-              <Detail label="Policy" value={policy?.policyNumber ?? '—'} />
+              <Detail label="Policy" value={claim.policyId} />
             </dl>
           </CardContent>
         </Card>
@@ -118,6 +120,15 @@ export default function ClaimDetailsPage() {
           </CardContent>
         </Card>
       </div>
+      <Card>
+        <CardHeader><CardTitle>Claim history</CardTitle></CardHeader>
+        <CardContent>
+          {historyQuery.isLoading ? <div className="space-y-4">{Array.from({ length: 3 }).map((_, index) => <Skeleton key={index} className="h-12 w-full" />)}</div>
+            : historyQuery.isError ? <div className="flex flex-col items-center gap-3 py-6 text-center"><AlertCircle className="size-7 text-destructive" /><div><p className="font-medium">Unable to load claim history</p><p className="mt-1 text-sm text-muted-foreground">Please try again.</p></div><Button variant="outline" onClick={() => void historyQuery.refetch()}>Try again</Button></div>
+              : historyQuery.data?.length === 0 ? <p className="text-sm text-muted-foreground">No status updates are available yet.</p>
+                : <ol className="space-y-5">{historyQuery.data?.map((entry, index, entries) => <li key={entry.id} className="flex gap-4"><div className="flex flex-col items-center"><CheckCircle2 className="size-5 text-primary" />{index < entries.length - 1 && <div className="mt-2 h-full w-px bg-border" />}</div><div className="min-w-0 pb-2"><div className="flex flex-wrap items-center gap-2"><ClaimStatusBadge status={entry.status} /><span className="text-sm text-muted-foreground">{formatDate(entry.changedAt)}</span></div><p className="mt-2 text-sm text-muted-foreground">{entry.notes ?? 'Status updated.'}</p></div></li>)}</ol>}
+        </CardContent>
+      </Card>
     </div>
   )
 }

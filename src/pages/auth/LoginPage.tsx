@@ -8,7 +8,7 @@ import { z } from 'zod'
 import { Button } from '@/components/ui/button'
 import { APP_NAME } from '@/constants/app'
 import { getRoleBasePath } from '@/routes/navigation'
-import { login } from '@/services/authService'
+import { useAuth } from '@/providers/AuthProvider'
 
 const loginSchema = z.object({
   email: z.string().trim().email('Enter a valid email address.'),
@@ -20,6 +20,7 @@ type LoginValues = z.infer<typeof loginSchema>
 
 export default function LoginPage() {
   const navigate = useNavigate()
+  const { login } = useAuth()
   const [showPassword, setShowPassword] = useState(false)
   const [loginError, setLoginError] = useState<string | null>(null)
   const {

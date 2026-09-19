@@ -1,12 +1,11 @@
-import { useEffect, useState } from 'react'
-import { Shield } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { LogOut, Shield } from 'lucide-react'
+import { Link, useNavigate } from 'react-router-dom'
 
 import { APP_NAME } from '@/constants/app'
 import type { UserRole } from '@/constants/claims'
 import { getRoleBasePath } from '@/routes/navigation'
-import { getCurrentUser } from '@/services/authService'
-import type { User } from '@/types'
+import { useAuth } from '@/providers/AuthProvider'
+import { Button } from '@/components/ui/button'
 
 interface AppHeaderProps {
   role: UserRole
@@ -14,16 +13,22 @@ interface AppHeaderProps {
 
 export function AppHeader({ role }: AppHeaderProps) {
   const basePath = getRoleBasePath(role)
-  const [user, setUser] = useState<User | null>(null)
-
-  useEffect(() => {
-    void getCurrentUser().then(setUser)
-  }, [])
+  const { user, logout } = useAuth()
+  const navigate = useNavigate()
 
   const userName = user ? `${user.firstName} ${user.lastName}` : 'User Profile'
   const initials = user && user.firstName && user.lastName
     ? `${user.firstName[0]}${user.lastName[0]}`.toUpperCase()
     : 'UP'
+
+  async function handleLogout() {
+    try {
+      await logout()
+    } catch {
+      // The local session is still cleared when the optional server logout call fails.
+    }
+    navigate('/login', { replace: true })
+  }
 
   return (
     <header className="sticky top-0 z-30 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
@@ -49,6 +54,9 @@ export function AppHeader({ role }: AppHeaderProps) {
           <div className="flex size-9 items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground">
             {initials}
           </div>
+          <Button variant="ghost" size="sm" onClick={() => void handleLogout()}>
+            <LogOut className="size-4" /> <span className="sr-only sm:not-sr-only">Log out</span>
+          </Button>
         </div>
       </div>
     </header>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import {
   AlertCircle,
@@ -22,56 +22,18 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
-import { getCurrentUser } from '@/services/authService'
 import {
-  type ClaimWithPolicy,
-  type CustomerClaimSummary,
-  getClaimsByCustomerId,
-  getCustomerClaimSummary,
+  getCustomerDashboardData,
 } from '@/services/claimsService'
-import { getCurrentCustomer } from '@/services/customerService'
-import type { Customer, User } from '@/types'
+import { useAuth } from '@/providers/AuthProvider'
 import { formatCurrency, formatDate } from '@/utils/formatters'
 
 export default function CustomerDashboardPage() {
-  const [loading, setLoading] = useState(true)
-  const [user, setUser] = useState<User | null>(null)
-  const [_customer, setCustomer] = useState<Customer | null>(null)
-  const [summary, setSummary] = useState<CustomerClaimSummary>({
-    totalClaims: 0,
-    activeClaims: 0,
-    approvedClaims: 0,
-    pendingClaims: 0,
-  })
-  const [claims, setClaims] = useState<ClaimWithPolicy[]>([])
-
-  useEffect(() => {
-    async function loadDashboardData() {
-      try {
-        setLoading(true)
-        const currentUser = await getCurrentUser()
-        setUser(currentUser)
-
-        const currentCustomer = await getCurrentCustomer()
-        setCustomer(currentCustomer)
-
-        if (currentCustomer) {
-          const [summaryData, claimsData] = await Promise.all([
-            getCustomerClaimSummary(currentCustomer.id),
-            getClaimsByCustomerId(currentCustomer.id),
-          ])
-          setSummary(summaryData)
-          setClaims(claimsData)
-        }
-      } catch (error) {
-        console.error('Failed to load dashboard data:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    void loadDashboardData()
-  }, [])
+  const { user } = useAuth()
+  const dashboardQuery = useQuery({ queryKey: ['dashboard', 'customer'], queryFn: getCustomerDashboardData })
+  const { data, isLoading: loading, isError, refetch } = dashboardQuery
+  const summary = data?.summary ?? { totalClaims: 0, activeClaims: 0, approvedClaims: 0, pendingClaims: 0 }
+  const claims = data?.claims ?? []
 
   return (
     <div className="space-y-8">
@@ -171,6 +133,12 @@ export default function CustomerDashboardPage() {
                   <Skeleton className="h-6 w-24 rounded-full" />
                 </div>
               ))}
+            </div>
+          ) : isError ? (
+            <div className="flex flex-col items-center justify-center gap-3 p-12 text-center">
+              <AlertCircle className="size-7 text-destructive" />
+              <div><h3 className="font-semibold">Unable to load your dashboard</h3><p className="mt-1 text-sm text-muted-foreground">Please check your connection and try again.</p></div>
+              <Button variant="outline" onClick={() => void refetch()}>Try again</Button>
             </div>
           ) : claims.length === 0 ? (
             <div className="flex flex-col items-center justify-center p-12 text-center">
