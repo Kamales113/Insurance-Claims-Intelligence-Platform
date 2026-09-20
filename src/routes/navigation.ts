@@ -1,6 +1,7 @@
 import type { UserRole } from '@/constants/claims'
 import type { LucideIcon } from 'lucide-react'
 import {
+  Bot,
   ClipboardList,
   FileText,
   LayoutDashboard,
@@ -36,6 +37,11 @@ export const customerNavItems: NavItem[] = [
     href: '/customer/policies',
     icon: Shield,
   },
+  {
+    title: 'Insurance Assistant',
+    href: '/customer/assistant',
+    icon: Bot,
+  },
 ]
 
 export const agentNavItems: NavItem[] = [
@@ -59,7 +65,13 @@ export const agentNavItems: NavItem[] = [
     href: '/agent/policies',
     icon: FileText,
   },
+  {
+    title: 'Insurance Assistant',
+    href: '/agent/assistant',
+    icon: Bot,
+  },
 ]
+
 
 export function getNavItemsForRole(role: UserRole): NavItem[] {
   switch (role) {

@@ -1,0 +1,206 @@
+{
+  "knowledge_base_version": "1.0",
+  "last_updated": "2026-09-20",
+  "documents": [
+    {
+      "id": "auto-comprehensive-coverage",
+      "policy_type": "Auto Comprehensive",
+      "title": "Auto Comprehensive Demo Coverage",
+      "content": "Under the demo Auto Comprehensive policy guidelines, coverage may apply to accidental vehicle damage from a collision, theft, fire, weather events, falling objects, or vandalism, subject to the policy conditions, limits, and deductible. A claim review is required before any coverage decision.",
+      "category": "coverage",
+      "source": "demo-policy-guidelines"
+    },
+    {
+      "id": "auto-comprehensive-glass-damage",
+      "policy_type": "Auto Comprehensive",
+      "title": "Auto Comprehensive Glass Damage",
+      "content": "For the demo Auto Comprehensive policy, vehicle glass or windshield damage caused by a covered accidental, weather-related, or road-debris event may be eligible for review. The claimant should preserve photographs of the damage and any repair estimate; the applicable deductible and policy conditions still apply.",
+      "category": "coverage",
+      "source": "demo-policy-guidelines"
+    },
+    {
+      "id": "auto-comprehensive-exclusions",
+      "policy_type": "Auto Comprehensive",
+      "title": "Auto Comprehensive Demo Exclusions",
+      "content": "The demo Auto Comprehensive guidelines may exclude ordinary wear, mechanical breakdown unrelated to a covered event, intentional damage, and loss occurring while a vehicle is used outside the stated policy conditions. These examples are not binding contract terms; each claim requires review.",
+      "category": "exclusions",
+      "source": "demo-policy-guidelines"
+    },
+    {
+      "id": "auto-comprehensive-deductible",
+      "policy_type": "Auto Comprehensive",
+      "title": "Auto Comprehensive Deductible Guidance",
+      "content": "Under the demo Auto Comprehensive guidelines, a deductible may be applied to an otherwise covered vehicle, theft, fire, weather, or glass loss. The applicable amount should be confirmed against the individual policy record and is not established by this knowledge base.",
+      "category": "deductible",
+      "source": "demo-policy-guidelines"
+    },
+    {
+      "id": "auto-comprehensive-documentation",
+      "policy_type": "Auto Comprehensive",
+      "title": "Auto Comprehensive Claim Documentation",
+      "content": "For a demo Auto Comprehensive claim, useful documentation may include the incident date and location, a description of the loss, photographs, repair estimates, police or theft reports when available, and contact information for involved parties. Providing documents supports review but does not guarantee approval.",
+      "category": "documentation",
+      "source": "demo-policy-guidelines"
+    },
+    {
+      "id": "homeowners-protection-coverage",
+      "policy_type": "Homeowners Protection",
+      "title": "Homeowners Protection Demo Coverage",
+      "content": "Under the demo Homeowners Protection guidelines, covered sudden damage to a dwelling or attached structures, and certain weather-related property damage, may be eligible for review. Coverage may also extend to personal property when the loss is connected to a covered event and subject to policy conditions.",
+      "category": "coverage",
+      "source": "demo-policy-guidelines"
+    },
+    {
+      "id": "homeowners-protection-water-damage",
+      "policy_type": "Homeowners Protection",
+      "title": "Homeowners Protection Water Damage Guidance",
+      "content": "For the demo Homeowners Protection policy, sudden and accidental water damage, such as a burst interior pipe, may be reviewed for coverage. Long-term seepage, neglected maintenance, and water losses excluded by the individual policy conditions may not be covered; a claim assessment is required.",
+      "category": "coverage",
+      "source": "demo-policy-guidelines"
+    },
+    {
+      "id": "homeowners-protection-exclusions",
+      "policy_type": "Homeowners Protection",
+      "title": "Homeowners Protection Demo Exclusions",
+      "content": "The demo Homeowners Protection guidelines may exclude routine maintenance, ordinary wear, intentional loss, and certain flood or surface-water events unless the individual policy conditions provide otherwise. These demo examples are not legal advice or real insurer contract language.",
+      "category": "exclusions",
+      "source": "demo-policy-guidelines"
+    },
+    {
+      "id": "homeowners-protection-deductible",
+      "policy_type": "Homeowners Protection",
+      "title": "Homeowners Protection Deductible Guidance",
+      "content": "An applicable deductible may be deducted from an otherwise covered demo Homeowners Protection loss. The claim reviewer should use the individual policy record to confirm the deductible and should not infer a dollar amount from this knowledge source.",
+      "category": "deductible",
+      "source": "demo-policy-guidelines"
+    },
+    {
+      "id": "homeowners-protection-documentation",
+      "policy_type": "Homeowners Protection",
+      "title": "Homeowners Protection Claim Documentation",
+      "content": "A demo Homeowners Protection claim should describe when the damage was discovered and include photographs, a list of damaged dwelling or personal-property items, receipts when available, and contractor, plumbing, or repair estimates when relevant. Emergency mitigation steps should also be documented for claim review.",
+      "category": "documentation",
+      "source": "demo-policy-guidelines"
+    },
+    {
+      "id": "individual-health-premier-coverage",
+      "policy_type": "Individual Health Premier",
+      "title": "Individual Health Premier Demo Coverage",
+      "content": "Under the demo Individual Health Premier guidelines, hospitalization, medically appropriate diagnostic services, and eligible treatment may be considered for coverage subject to the member's individual policy conditions, benefit limits, and clinical review. This is controlled demo information, not medical or insurance advice.",
+      "category": "coverage",
+      "source": "demo-policy-guidelines"
+    },
+    {
+      "id": "individual-health-premier-limitations",
+      "policy_type": "Individual Health Premier",
+      "title": "Individual Health Premier Demo Limitations",
+      "content": "The demo Individual Health Premier guidelines may limit or exclude services that are not eligible under the individual policy, are not supported by required documentation, fall outside covered benefits, or are subject to stated waiting periods or authorization conditions. Eligibility must be reviewed for each submission.",
+      "category": "exclusions",
+      "source": "demo-policy-guidelines"
+    },
+    {
+      "id": "individual-health-premier-cost-sharing",
+      "policy_type": "Individual Health Premier",
+      "title": "Individual Health Premier Cost Sharing Guidance",
+      "content": "For the demo Individual Health Premier policy, member cost sharing, including any deductible or other out-of-pocket amount, may apply to an eligible service. The actual policy record and submitted claim information must be reviewed to determine whether a cost-sharing amount applies.",
+      "category": "deductible",
+      "source": "demo-policy-guidelines"
+    },
+    {
+      "id": "individual-health-premier-documentation",
+      "policy_type": "Individual Health Premier",
+      "title": "Individual Health Premier Claim Documentation",
+      "content": "A demo Individual Health Premier claim may require itemized provider bills, treatment dates, diagnosis or procedure information when appropriate, referral or authorization records when applicable, and proof of payment if reimbursement is requested. Only the claim reviewer can determine whether documentation is sufficient.",
+      "category": "documentation",
+      "source": "demo-policy-guidelines"
+    },
+    {
+      "id": "individual-health-premier-submission",
+      "policy_type": "Individual Health Premier",
+      "title": "Individual Health Premier Claim Submission Guidance",
+      "content": "For the demo Individual Health Premier policy, a claim submission should identify the member, provider, treatment date, requested amount, and supporting documents. Submitting complete information helps the review process, but it does not confirm that treatment is eligible or that a claim will be approved.",
+      "category": "claims",
+      "source": "demo-policy-guidelines"
+    },
+    {
+      "id": "auto-liability-coverage",
+      "policy_type": "Auto Liability",
+      "title": "Auto Liability Demo Coverage",
+      "content": "Under the demo Auto Liability guidelines, third-party bodily injury and third-party property damage arising from a covered vehicle incident may be reviewed for coverage. The scope of any coverage depends on the individual policy conditions, facts of the incident, and applicable limits.",
+      "category": "coverage",
+      "source": "demo-policy-guidelines"
+    },
+    {
+      "id": "auto-liability-property-damage",
+      "policy_type": "Auto Liability",
+      "title": "Auto Liability Property Damage Guidance",
+      "content": "For the demo Auto Liability policy, damage to another person's vehicle or other property may be considered as third-party property damage when caused by a covered incident. Repair estimates, photographs, incident details, and involved-party information support the claim review.",
+      "category": "claims",
+      "source": "demo-policy-guidelines"
+    },
+    {
+      "id": "auto-liability-exclusions",
+      "policy_type": "Auto Liability",
+      "title": "Auto Liability Demo Exclusions",
+      "content": "The demo Auto Liability guidelines may exclude intentional acts, losses outside the stated use or driver conditions, and damage to the insured vehicle that is not covered by the liability policy. These examples are illustrative only and every claim must be reviewed against its policy record.",
+      "category": "exclusions",
+      "source": "demo-policy-guidelines"
+    },
+    {
+      "id": "auto-liability-documentation",
+      "policy_type": "Auto Liability",
+      "title": "Auto Liability Claim Documentation",
+      "content": "A demo Auto Liability claim should include the incident date and location, a description of events, driver and vehicle details, third-party contact information, photographs, police reports when available, and repair or medical documentation when relevant. Documentation enables review and does not establish fault or coverage.",
+      "category": "documentation",
+      "source": "demo-policy-guidelines"
+    },
+    {
+      "id": "auto-liability-general-guidance",
+      "policy_type": "Auto Liability",
+      "title": "Auto Liability General Guidance",
+      "content": "The demo Auto Liability policy is intended to illustrate review of third-party claims rather than a guarantee of payment. Coverage may be affected by policy status, reported facts, limits, exclusions, and the completeness of the claim file.",
+      "category": "general",
+      "source": "demo-policy-guidelines"
+    },
+    {
+      "id": "commercial-property-coverage",
+      "policy_type": "Commercial Property",
+      "title": "Commercial Property Demo Coverage",
+      "content": "Under the demo Commercial Property guidelines, direct physical damage to covered business buildings, equipment, inventory, or other business property from a covered event such as fire, certain weather damage, or accidental damage may be eligible for review, subject to policy conditions and limits.",
+      "category": "coverage",
+      "source": "demo-policy-guidelines"
+    },
+    {
+      "id": "commercial-property-covered-events",
+      "policy_type": "Commercial Property",
+      "title": "Commercial Property Covered Event Guidance",
+      "content": "For the demo Commercial Property policy, a covered-event assessment may consider the reported cause of loss, timing, physical damage, mitigation actions, and whether the damaged business property is identified in the individual policy record. A claim investigation is required before a decision.",
+      "category": "claims",
+      "source": "demo-policy-guidelines"
+    },
+    {
+      "id": "commercial-property-exclusions",
+      "policy_type": "Commercial Property",
+      "title": "Commercial Property Demo Exclusions",
+      "content": "The demo Commercial Property guidelines may exclude normal wear, deferred maintenance, intentional damage, and losses not connected to a covered event. Certain water, flood, or business-interruption situations may also depend on individual policy conditions; these demo rules are not a real contract.",
+      "category": "exclusions",
+      "source": "demo-policy-guidelines"
+    },
+    {
+      "id": "commercial-property-deductible",
+      "policy_type": "Commercial Property",
+      "title": "Commercial Property Deductible Guidance",
+      "content": "An applicable deductible may be applied to an otherwise covered demo Commercial Property loss. The claim reviewer should confirm the applicable amount and any conditions from the individual policy record rather than relying on a general rule in this knowledge base.",
+      "category": "deductible",
+      "source": "demo-policy-guidelines"
+    },
+    {
+      "id": "commercial-property-documentation",
+      "policy_type": "Commercial Property",
+      "title": "Commercial Property Claim Documentation",
+      "content": "A demo Commercial Property claim should identify the damaged business property and provide incident details, photographs or video, inventory records when relevant, invoices or purchase records when available, repair estimates, and mitigation documentation. Complete records support review but do not guarantee coverage or payment.",
+      "category": "documentation",
+      "source": "demo-policy-guidelines"
+    }
+  ]
+}

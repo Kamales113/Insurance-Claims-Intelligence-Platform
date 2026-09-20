@@ -1,12 +1,14 @@
 import { lazy } from 'react'
-import type { RouteObject } from 'react-router-dom'
+import { Navigate, type RouteObject } from 'react-router-dom'
 
 import { AppLayout } from '@/components/layout/AppLayout'
 import { AuthLayout } from '@/components/layout/AuthLayout'
 import { RequireRole } from '@/routes/RequireRole'
+import { useAuth } from '@/providers/AuthProvider'
 
 const LoginPage = lazy(() => import('@/pages/auth/LoginPage'))
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'))
+const AssistantPage = lazy(() => import('@/pages/assistant/AssistantPage'))
 
 const CustomerDashboardPage = lazy(
   () => import('@/pages/customer/CustomerDashboardPage'),
@@ -43,6 +45,13 @@ const AgentPolicyDetailsPage = lazy(
   () => import('@/pages/agent/AgentPolicyDetailsPage'),
 )
 
+function AssistantRedirect() {
+  const { user, isLoading } = useAuth()
+  if (isLoading) return null
+  if (!user) return <Navigate to="/login" replace />
+  return <Navigate to={user.role === 'customer' ? '/customer/assistant' : '/agent/assistant'} replace />
+}
+
 export const routes: RouteObject[] = [
   {
     path: '/login',
@@ -59,6 +68,7 @@ export const routes: RouteObject[] = [
       { path: 'claims/:claimId', element: <ClaimDetailsPage /> },
       { path: 'claims/:claimId/track', element: <ClaimTrackingPage /> },
       { path: 'policies', element: <CustomerPoliciesPage /> },
+      { path: 'assistant', element: <AssistantPage /> },
     ],
   },
   {
@@ -72,10 +82,16 @@ export const routes: RouteObject[] = [
       { path: 'customers/:customerId', element: <AgentCustomerDetailsPage /> },
       { path: 'policies', element: <PolicyManagementPage /> },
       { path: 'policies/:policyId', element: <AgentPolicyDetailsPage /> },
+      { path: 'assistant', element: <AssistantPage /> },
     ],
+  },
+  {
+    path: '/assistant',
+    element: <AssistantRedirect />,
   },
   {
     path: '*',
     element: <NotFoundPage />,
   },
 ]
+

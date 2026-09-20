@@ -1,10 +1,13 @@
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { AlertCircle, ArrowLeft, BrainCircuit, FileText, LoaderCircle } from 'lucide-react'
+import { AlertCircle, ArrowLeft, FileText, LoaderCircle } from 'lucide-react'
+
 
 import { ClaimStatusBadge } from '@/components/claims/ClaimStatusBadge'
+import { ClaimAnalysisCard } from '@/components/claims/ClaimAnalysisCard'
 import { PageHeader } from '@/components/layout/PageHeader'
+
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -244,17 +247,8 @@ export default function ClaimReviewPage() {
         </CardContent>
       </Card>
 
-      <Card className="border-dashed">
-        <CardContent className="flex gap-3 p-6">
-          <BrainCircuit className="size-6 text-muted-foreground shrink-0" />
-          <div>
-            <h2 className="font-semibold">AI Investigation — Coming in Phase 3</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Future reviews will include policy validation, fraud assessment, document verification, evidence, and decision traceability.
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+      <ClaimAnalysisCard claimId={claim.id} />
+
     </div>
   )
 }

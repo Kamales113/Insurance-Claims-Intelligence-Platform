@@ -1,7 +1,9 @@
-import json
-from typing import List, Union
-from pydantic import field_validator
+from pathlib import Path
+from typing import List, Optional, Union
+from pydantic import SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+ENV_FILE_PATH = Path(__file__).resolve().parent.parent.parent / ".env"
 
 
 class Settings(BaseSettings):
@@ -12,6 +14,9 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
     CORS_ORIGINS: Union[List[str], str] = ["http://localhost:5173"]
+    GEMINI_API_KEY: Optional[SecretStr] = None
+    GEMINI_MODEL: str = "gemini-3.5-flash"
+    GEMINI_EMBEDDING_MODEL: str = "gemini-embedding-001"
 
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod
@@ -28,10 +33,26 @@ class Settings(BaseSettings):
         raise ValueError(v)
 
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=ENV_FILE_PATH if ENV_FILE_PATH.exists() else ".env",
         env_file_encoding="utf-8",
         extra="ignore"
     )
+
+    @classmethod
+    def settings_customise_sources(
+        cls,
+        settings_cls,
+        init_settings,
+        env_settings,
+        dotenv_settings,
+        file_secret_settings,
+    ):
+        return (
+            init_settings,
+            dotenv_settings,
+            env_settings,
+            file_secret_settings,
+        )
 
 
 settings = Settings()
